@@ -1,5 +1,6 @@
 package com.jobayed.standalonesecurity.authentication;
 
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     protected UserDetailsService userDetailsService;
 
-    AuthenticationProvider authenticationProvider(){
+    AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
         provider.setUserDetailsService(userDetailsService);
@@ -29,17 +30,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/").permitAll()
-                .antMatchers("/home").hasAuthority("USER")
-                .antMatchers("/admin").hasAuthority("ADMIN")
-                .anyRequest().authenticated()
+        http.authorizeRequests().antMatchers("/","/login","/actuator/**").permitAll();
+        http.authorizeRequests().antMatchers("/live/**").hasAnyAuthority("USER", "ADMIN");
+
+        http.authorizeRequests().anyRequest().authenticated()
                 .and().httpBasic();
 
     }
 
     @Bean
-    protected BCryptPasswordEncoder passwordEncoder(){
+    protected BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public Hibernate5Module datatypeHibernateModule() {
+        return new Hibernate5Module();
     }
 
 

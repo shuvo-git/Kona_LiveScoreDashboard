@@ -12,9 +12,8 @@ public class UserService {
     private final UserRepository repository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public Long saveUser(String username, String password, String role)
-    {
-        User user = new User(null,username,passwordEncoder.encode(password),role);
+    public Long saveUser(String username, String password, String role) {
+        User user = new User(null, username, passwordEncoder.encode(password), role);
         Long userId = repository.save(user).getId();
         return userId;
     }

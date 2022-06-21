@@ -1,0 +1,46 @@
+All Are kept HTTP GET method intentionally.
+
+
+
+Search APIs
+-------------------
+1. Can load The Items By Pagination
+/live/scores  
+@RequestBody  {
+    "pageNumber": 0,
+    "pageSize": 3
+}
+--------------------------
+
+2. Can search Items using like operator on ALL field  
+/live/scores/{keyword}
+
+@RequestBody {
+    "pageNumber": 1,
+    "pageSize": 2
+}
+
+and @PathVAriable keyword
+-----------------------------------
+3. 
+getSingleItem by ID:
+/live/scores/getSingleItem
+
+@RequestParam guid
+---------------------------
+
+Different profile version has been created.
+
+I have implemented only backend. Spring security for Login and Authorization/Filtering has been added.
+On app start 2 user gets created on users table:
+
+before starting the app a database named: "live_score_dashboard" should be created on a MySQL db 
+for other DB please change the configuration on the assciated config file.
+
+------------------------------
+   user | password | role
+------------------------------
+jobayed | 1234     | ADMIN
+------------------------------
+saiful  | 1234     | USER
+------------------------------
