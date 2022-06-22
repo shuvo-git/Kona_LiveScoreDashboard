@@ -6,13 +6,14 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "items")
 @Data
 @NoArgsConstructor @AllArgsConstructor
 @XmlRootElement(name = "item")
-public class Item {
+public class Item implements Serializable {
 
     private String title;
     private String link;

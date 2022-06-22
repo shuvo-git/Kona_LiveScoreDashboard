@@ -1,6 +1,10 @@
 package com.jobayed.standalonesecurity.livescore.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.jobayed.standalonesecurity.baserepository.IBaseRepository;
+import com.jobayed.standalonesecurity.livescore.dto.Channel;
+import com.jobayed.standalonesecurity.livescore.dto.Rss;
 import com.jobayed.standalonesecurity.livescore.model.Item;
 import com.jobayed.standalonesecurity.livescore.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -32,39 +37,11 @@ public class ItemService {
     private final IBaseRepository repository;
     private static final String LIVE_SCORE_URL = "http://static.cricinfo.com/rss/livescores.xml";
     private final RestTemplate restTemplate = new RestTemplate();
-
     @Scheduled(cron = "0 */5 * * * *") //Every 5 mins
     public void loadItem() {
         log.info("Scheduler Started at: " + new Date().toLocaleString());
-
-        String channel = restTemplate.getForObject(LIVE_SCORE_URL, String.class);
-
-        List<Item> items = new ArrayList<Item>();
-        try {
-            JAXBContext jc = JAXBContext.newInstance(Item.class);
-
-            Reader reader = new StringReader(channel);
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-
-            XMLStreamReader xsr = factory.createXMLStreamReader(reader);
-
-
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            while (xsr.getEventType() != XMLStreamReader.END_DOCUMENT) {
-                if (xsr.isStartElement() && "item".equals(xsr.getLocalName())) {
-                    Item item = (Item) unmarshaller.unmarshal(xsr);
-                    items.add(item);
-
-                    this.saveItem(item);
-                }
-                xsr.next();
-            }
-
-            System.out.println(items.size());
-
-        } catch (JAXBException | XMLStreamException e) {
-            e.printStackTrace();
-        }
+        Rss rss = restTemplate.getForObject(LIVE_SCORE_URL,Rss.class);
+        rss.getChannel().getItem().forEach(item -> this.saveItem(item));
     }
 
     public Item saveItem(Item item) {
@@ -72,7 +49,8 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public Item getOneItem(String id) {
+    public Item getOneItem(String id)
+    {
         String sql = "Select * from items i where i.guid = :guid";
         Map<String, Object> params = new HashMap<>();
         params.put("guid",id);

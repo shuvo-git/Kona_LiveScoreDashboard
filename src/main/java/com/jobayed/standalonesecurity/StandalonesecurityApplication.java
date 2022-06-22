@@ -24,10 +24,6 @@ public class StandalonesecurityApplication {
         return args -> {
 			userService.saveUser("jobayed","1234","ADMIN");
 			userService.saveUser("saiful","1234","USER");
-
-
-
-
         };
     }
 
